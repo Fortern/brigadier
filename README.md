@@ -9,43 +9,33 @@ Brigadier is available to Maven & Gradle via `libraries.minecraft.net`. Its grou
 First include our repository:
 ```groovy
 maven {
-    url "https://libraries.minecraft.net"
+    url "https://maven.fortern.xyz/repository/maven-public/"
 }
 ```
 
 And then use this library (change `(the latest version)` to the latest version!):
 ```groovy
-compile 'com.mojang:brigadier:(the latest version)'
+compile 'xyz.fortern:brigadier:(the latest version)'
 ```
 
 ## Maven
-First include our repository:
+First include my repository:
 ```xml
 <repository>
-  <id>minecraft-libraries</id>
-  <name>Minecraft Libraries</name>
-  <url>https://libraries.minecraft.net</url>
+  <id>fortern-libraries</id>
+  <name>Fortern Libraries</name>
+  <url>https://maven.fortern.xyz/repository/maven-public/</url>
 </repository>
 ```
 
 And then use this library (change `(the latest version)` to the latest version!):
 ```xml
 <dependency>
-    <groupId>com.mojang</groupId>
+    <groupId>xyz.fortern</groupId>
     <artifactId>brigadier</artifactId>
     <version>(the latest version)</version>
 </dependency>
 ```
-
-# Contributing
-Contributions are welcome! :D
-
-Most contributions will require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to,
-and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 # Usage
 At the heart of Brigadier, you need a `CommandDispatcher<S>`, where `<S>` is any custom object you choose to identify a "command source".
