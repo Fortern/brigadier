@@ -330,6 +330,7 @@ public class CommandDispatcher<S> {
                 } while (reader.canRead() && reader.peek() == ARGUMENT_SEPARATOR_CHAR);
                 if (child.getRedirect() != null) {
                     final CommandContextBuilder<S> childContext = new CommandContextBuilder<>(this, source, child.getRedirect(), reader.getCursor());
+                    childContext.withArguments(context.getArguments());
                     final ParseResults<S> parse = parseNodes(child.getRedirect(), reader, childContext);
                     context.withChild(parse.getContext());
                     final ParseResults<S> redirect = new ParseResults<>(context, parse.getReader(), parse.getExceptions());
