@@ -10,6 +10,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.hamcrest.CustomMatcher;
@@ -27,23 +28,13 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommandDispatcherTest {
@@ -213,6 +204,16 @@ public class CommandDispatcherTest {
         final ParseResults<Object> parse = subject.parse("foo ", source);
         assertThat(parse.getReader().getRemaining(), equalTo(" "));
         assertThat(parse.getContext().getNodes().size(), is(1));
+    }
+
+    @Test
+    public void testParseChildlessRedirect() throws Exception {
+        final CommandNode<Object> target = subject.register(literal("foo").executes(command));
+        final CommandNode<Object> redirect = subject.register(literal("redirect").redirect(target));
+
+        final ParseResults<Object> parse = subject.parse("redirect", source);
+        assertThat(parse.getContext().getCommand(), equalTo(target.getCommand()));
+        assertThat(parse.getContext().getNodes().get(0).getNode(), equalTo(redirect));
     }
 
     @SuppressWarnings("unchecked")
