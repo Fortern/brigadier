@@ -10,6 +10,8 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
@@ -22,7 +24,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -493,6 +498,25 @@ public class CommandDispatcherTest {
     @Test
     public void testFindNodeDoesntExist() {
         assertThat(subject.findNode(Lists.newArrayList("foo", "bar")), is(nullValue()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCompletionWithErroredFutureReturnsCompletedFuture() {
+        final LiteralCommandNode<Object> bar = literal("bar").build();
+        final LiteralCommandNode<Object> baz = mock(LiteralCommandNode.class);
+        when(baz.getLiteral()).thenReturn("baz");
+        when(baz.listSuggestions(any(), any())).thenAnswer(x -> {
+            final CompletableFuture<Suggestions> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException());
+            return future;
+        });
+        subject.register(literal("foo").then(bar).then(baz));
+
+        final ParseResults<Object> parseResults = subject.parse("foo b", source);
+        final Suggestions suggestions = subject.getCompletionSuggestions(parseResults).join();
+        final Collection<String> suggestionCollection = suggestions.getList().stream().map(Suggestion::getText).collect(Collectors.toList());
+        assertThat(Lists.newArrayList("bar"), is(suggestionCollection));
     }
 
     @Test
